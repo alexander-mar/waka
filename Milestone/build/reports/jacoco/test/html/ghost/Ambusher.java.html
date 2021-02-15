@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ambusher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">Ambusher.java</span></div><h1>Ambusher.java</h1><pre class="source lang-java linenums">package ghost;
+
+import processing.core.PImage;
+import java.util.HashMap;
+import java.util.ArrayList;
+public class Ambusher extends Ghost{
+
+
+    HashMap&lt;Integer, Integer&gt; prevDistances;
+
+    public Ambusher(int x, int y, PImage display, long speed, long[] modeLengths) {
+        
+<span class="fc" id="L13">        super(x, y, display, speed, modeLengths);</span>
+<span class="fc" id="L14">        ogX = x;</span>
+<span class="fc" id="L15">        ogY = y;</span>
+<span class="fc" id="L16">        xv = (int) (-1 * speed);</span>
+<span class="fc" id="L17">        yv = 0;</span>
+        
+<span class="fc" id="L19">    }</span>
+
+    public void logic(App app, Entity[][] layout) {
+<span class="fc" id="L22">        HashMap&lt;Integer, Integer&gt;distances = prevDistances;</span>
+        //target = layout[0][0];
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        if (scatter == true){</span>
+            //gonna have to change target
+            
+<span class="nc" id="L27">            target = layout[448][0];</span>
+
+        }
+        else{
+<span class="fc" id="L31">            target = app.getWaka();</span>
+        }
+        
+        //if (isIntersect(layout, app) == true || this.x == ogX &amp;&amp; this.y == ogY) {
+<span class="fc" id="L35">        distances = getDistances();</span>
+        //}
+<span class="fc" id="L37">        System.out.println(speed);</span>
+<span class="fc" id="L38">        ArrayList&lt;Boolean&gt; freePaths = checkFreePath(layout, app);</span>
+        
+<span class="fc" id="L40">        pickDirection(distances, layout, app, freePaths);</span>
+<span class="fc" id="L41">        prevDistances = distances;</span>
+
+<span class="fc" id="L43">        this.move(app, layout);</span>
+
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if(this.alive) {</span>
+<span class="fc" id="L46">            this.x += xv;</span>
+<span class="fc" id="L47">            this.y += yv;</span>
+        }
+<span class="fc" id="L49">    }</span>
+
+
+    
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

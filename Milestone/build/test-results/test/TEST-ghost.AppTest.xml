@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ghost.AppTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-11-23T10:20:52" hostname="Alexanders-MBP" time="0.093">
+  <properties/>
+  <testcase name="constructor()" classname="ghost.AppTest" time="0.093"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

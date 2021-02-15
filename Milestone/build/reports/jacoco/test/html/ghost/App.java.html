@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package ghost;
+import javax.swing.border.EmptyBorder;
+
+import processing.core.PApplet;
+import processing.core.PFont;
+
+public class App extends PApplet {
+
+    public static final int WIDTH = 448;
+    public static final int HEIGHT = 576;
+    private gameParser par;
+    private Entity[][] map;
+    private Waka waka;
+    private Chaser chaser;
+    private Ambusher ambusher;
+    private PFont gameFont;
+    private Ignorant ignorant;
+    private Whim whim;
+
+<span class="fc" id="L20">    public App() {</span>
+<span class="fc" id="L21">        par = new gameParser(); // setting up your objects   </span>
+<span class="fc" id="L22">    }</span>
+    public void setup() {
+<span class="fc" id="L24">        this.gameFont = this.createFont(&quot;src/main/resources/PressStart2P-Regular.ttf&quot;, 25);</span>
+<span class="fc" id="L25">        frameRate(60);</span>
+<span class="fc" id="L26">        this.map = par.converter(this);</span>
+<span class="fc" id="L27">    }</span>
+    public Entity[][] getMap(){
+<span class="fc" id="L29">        return map;</span>
+    }
+    public Chaser getChaser(){
+<span class="fc" id="L32">        return this.chaser;</span>
+    }
+    public void setLocationWaka(Waka w) {
+<span class="fc" id="L35">        this.waka = w;</span>
+<span class="fc" id="L36">    }</span>
+    public void setLocationChaser(Chaser chase) {
+<span class="fc" id="L38">        this.chaser = chase;</span>
+<span class="fc" id="L39">    }</span>
+    public void setLocationAmbusher(Ambusher ambush) {
+<span class="fc" id="L41">        this.ambusher= ambush;</span>
+<span class="fc" id="L42">    }</span>
+    public void setLocationIgnorant(Ignorant ignorant){
+<span class="fc" id="L44">        this.ignorant = ignorant;</span>
+<span class="fc" id="L45">    }</span>
+    public void setLocationWhim(Whim whim){
+<span class="fc" id="L47">        this.whim = whim;</span>
+<span class="fc" id="L48">    }</span>
+
+    public void keyPressed() {
+<span class="nc" id="L51">        waka.logic(keyCode, this, map);</span>
+        // chaser.logic(this, map);
+<span class="nc" id="L53">    }</span>
+
+    public void settings() {
+<span class="fc" id="L56">        size(WIDTH, HEIGHT);</span>
+<span class="fc" id="L57">    }</span>
+    public void logic(){
+
+<span class="nc" id="L60">    }</span>
+    public void draw() {
+        // main loop here
+<span class="fc" id="L63">        background(0, 0, 0);</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (waka.GAME_OVER_LOSE) {</span>
+<span class="nc" id="L65">            background(0, 0, 0);</span>
+<span class="nc" id="L66">            this.textFont(this.gameFont);</span>
+<span class="nc" id="L67">            this.text(&quot;YOU LOSE&quot;, 100, 100);</span>
+<span class="nc" id="L68">            this.delay(10000);</span>
+<span class="nc" id="L69">            setup();</span>
+        }
+
+<span class="pc bpc" id="L72" title="2 of 4 branches missed.">        if (waka.GAME_OVER_WIN || waka.score == Fruit.size) {</span>
+<span class="nc" id="L73">            background(0, 0, 0);</span>
+<span class="nc" id="L74">            this.textFont(this.gameFont);</span>
+<span class="nc" id="L75">            this.text(&quot;YOU WIN&quot;, 100, 100);</span>
+        }
+
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        else if (waka.GAME_NOT_OVER) {</span>
+<span class="fc" id="L79">            waka.move(map, this);</span>
+<span class="fc" id="L80">            chaser.logic(this, map);</span>
+<span class="fc" id="L81">            chaser.move(this, map);</span>
+<span class="fc" id="L82">            ambusher.logic(this,map);</span>
+<span class="fc" id="L83">            ambusher.move(this, map);</span>
+<span class="fc" id="L84">            ignorant.logic(this, map);</span>
+<span class="fc" id="L85">            ignorant.move(this, map);</span>
+<span class="fc" id="L86">            whim.logic(this, map);</span>
+<span class="fc" id="L87">            whim.move(this, map);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            for (int i = 0; i &lt; this.map.length; i += 1) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                for (int j = 0; j &lt; this.map[i].length; j += 1) {</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">                    if (this.map[i][j] != null) {</span>
+<span class="fc" id="L91">                        this.map[i][j].draw(this);</span>
+                    }
+                }
+            }
+            // print lives at bottom
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            for (int i = 0; i &lt; waka.lives; i += 1) {</span>
+<span class="fc" id="L97">                int x = 16;</span>
+<span class="fc" id="L98">                x = i * x;</span>
+<span class="fc" id="L99">                image(loadImage(&quot;src/main/resources/playerRight.png&quot;), x, 550.0f, 16.0f, 16.0f);</span>
+            }
+        }
+<span class="fc" id="L102">    }</span>
+    public Waka getWaka() {
+<span class="fc" id="L104">        return waka;</span>
+    }
+
+    public static void main(String[] args) {
+<span class="nc" id="L108">        PApplet.main(&quot;ghost.App&quot;);</span>
+<span class="nc" id="L109">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

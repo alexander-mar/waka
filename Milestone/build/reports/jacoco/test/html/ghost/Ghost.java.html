@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ghost.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">Ghost.java</span></div><h1>Ghost.java</h1><pre class="source lang-java linenums">package ghost;
+
+import processing.core.PImage;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.*;
+import java.util.Map;
+
+public class Ghost extends Entity {
+   
+<span class="fc" id="L11">    Boolean scatter = false;</span>
+<span class="fc" id="L12">    Boolean frightened = false;</span>
+    Entity target;
+    //Entity targetCorner;
+    Integer xv; // temp holders
+    Integer yv;
+    int ogX;
+    int ogY;
+    int prevXx;
+    int prevYv;
+<span class="fc" id="L21">    Boolean hit = false;</span>
+<span class="fc" id="L22">    Boolean VerMov = false;</span>
+<span class="fc" id="L23">    Boolean found = false;</span>
+    private long modeCount;
+    private long[] modeLengths;
+    private int modeIndex;
+    Boolean chasing;
+<span class="fc" id="L28">    Boolean alive = true;</span>
+    long speed;
+    double timeElapsed;
+   
+    public Ghost(int x, int y, PImage sprite, long speed, long[] modeLengths) {
+<span class="fc" id="L33">        super(x, y, sprite);</span>
+<span class="fc" id="L34">        this.modeLengths = modeLengths;</span>
+<span class="fc" id="L35">        this.modeCount = 0;</span>
+        // mode index is even = scatter, odd = chase, loops through modeLengths
+<span class="fc" id="L37">        this.modeIndex = 0;</span>
+<span class="fc" id="L38">        this.chasing = false;</span>
+<span class="fc" id="L39">        this.alive = true;</span>
+<span class="fc" id="L40">        this.speed = speed;</span>
+        
+
+<span class="fc" id="L43">    }</span>
+    /**
+     * checks which mode the ghost should be in currently
+     * @return
+     */
+    public boolean checkModes(){
+        //even corresponds to scatter
+        //odd to chase
+<span class="fc" id="L51">        double timeElapsed = (double) this.modeCount / 60;</span>
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (timeElapsed &gt;= (double) this.modeLengths[this.modeIndex]) {</span>
+<span class="fc" id="L54">            this.modeIndex += 1;</span>
+<span class="fc" id="L55">            this.modeCount = 0;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">            if (this.modeIndex &gt;= this.modeLengths.length) {</span>
+<span class="nc" id="L57">                this.modeIndex = 0;</span>
+            }
+        }
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (this.modeIndex % 2 == 0) {</span>
+<span class="fc" id="L61">            this.chasing = false;</span>
+    
+        } else {
+<span class="fc" id="L64">            this.chasing = true;</span>
+        }
+
+<span class="fc" id="L67">        this.modeCount += 1;</span>
+<span class="fc" id="L68">        return this.chasing;</span>
+
+    }
+
+    /**
+     * gets the distances from the target depending on what next move is
+     * @return
+     */
+    public HashMap&lt;Integer, Integer&gt; getDistances() {
+<span class="fc" id="L77">        HashMap&lt;Integer, Integer&gt; distances = new HashMap&lt;Integer, Integer&gt;();</span>
+<span class="fc" id="L78">        System.out.println(target.x);</span>
+        // up
+<span class="fc" id="L80">        distances.put(0,</span>
+<span class="fc" id="L81">                ((x - target.getXc()) * (x - target.getXc()) + (y - 1 - target.getYc()) * (y - 1 - target.getYc())));</span>
+        // down
+<span class="fc" id="L83">        distances.put(1,</span>
+                
+<span class="fc" id="L85">                ((x - target.getXc()) * (x - target.getXc()) + (y + 1 - target.getYc()) * (y + 1 - target.getYc())));</span>
+        // left
+<span class="fc" id="L87">        distances.put(2,</span>
+<span class="fc" id="L88">                ((x - 1 - target.getXc()) * (x - 1 - target.getXc()) + (y - target.getYc()) * (y - target.getYc())));</span>
+        // right
+<span class="fc" id="L90">        distances.put(3,</span>
+<span class="fc" id="L91">                ((x + 1 - target.getXc()) * (x + 1 - target.getXc()) + (y - target.getYc()) * (y - target.getYc())));</span>
+
+        // hashmap to list
+<span class="fc" id="L94">        List&lt;Map.Entry&lt;Integer, Integer&gt;&gt; list = new LinkedList&lt;Map.Entry&lt;Integer, Integer&gt;&gt;(distances.entrySet());</span>
+
+        // sort the list
+<span class="fc" id="L97">        Collections.sort(list, new Comparator&lt;Map.Entry&lt;Integer, Integer&gt;&gt;() {</span>
+            public int compare(Map.Entry&lt;Integer, Integer&gt; o1, Map.Entry&lt;Integer, Integer&gt; o2) {
+<span class="fc" id="L99">                return (o1.getValue()).compareTo(o2.getValue());</span>
+            }
+        });
+
+        // sorted list to hashmap
+<span class="fc" id="L104">        HashMap&lt;Integer, Integer&gt; temp = new LinkedHashMap&lt;Integer, Integer&gt;();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (HashMap.Entry&lt;Integer, Integer&gt; aa : list) {</span>
+<span class="fc" id="L106">            temp.put(aa.getKey(), aa.getValue());</span>
+<span class="fc" id="L107">        }</span>
+
+<span class="fc" id="L109">        System.out.println(distances);</span>
+<span class="fc" id="L110">        return temp;</span>
+
+    }
+
+    /**
+     * Selects the distance which doesnt cause a collision and is shortest
+     * @param distances
+     * @param layout
+     * @param app
+     * @param freePaths
+     */
+    public void pickDirection(HashMap&lt;Integer, Integer&gt; distances, Entity[][] layout, App app,ArrayList&lt;Boolean&gt; freePaths ) {
+        
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        for (Integer key : distances.keySet()) {</span>
+            
+
+<span class="fc bfc" id="L126" title="All 4 branches covered.">            if (key == 0 &amp;&amp; freePaths.get(0) == true ) { // UP</span>
+<span class="fc" id="L127">                System.out.println(&quot;up&quot;);</span>
+<span class="fc" id="L128">                this.yv = -1;</span>
+<span class="fc" id="L129">                this.xv = 0;</span>
+<span class="fc" id="L130">                VerMov = true;</span>
+<span class="fc" id="L131">                break;</span>
+
+<span class="fc bfc" id="L133" title="All 4 branches covered.">            } else if (key == 1 &amp;&amp; freePaths.get(1) == true) { // DOWN</span>
+<span class="fc" id="L134">                System.out.println(&quot;down&quot;);</span>
+<span class="fc" id="L135">                this.yv = 1;</span>
+<span class="fc" id="L136">                this.xv = 0;</span>
+<span class="fc" id="L137">                VerMov = true;</span>
+<span class="fc" id="L138">                break;</span>
+                
+<span class="fc bfc" id="L140" title="All 4 branches covered.">            } else if (key == 2 &amp;&amp; freePaths.get(2) == true) { // LEFT</span>
+<span class="fc" id="L141">                System.out.println(&quot;left&quot;);</span>
+<span class="fc" id="L142">                VerMov = false;</span>
+<span class="fc" id="L143">                this.xv = -1;</span>
+<span class="fc" id="L144">                this.yv = 0;</span>
+<span class="fc" id="L145">                break;</span>
+                
+<span class="pc bpc" id="L147" title="1 of 4 branches missed.">            } else if (key == 3 &amp;&amp; freePaths.get(3) == true) { // RIGHT</span>
+<span class="fc" id="L148">                System.out.println(&quot;right&quot;);</span>
+<span class="fc" id="L149">                VerMov = false;</span>
+<span class="fc" id="L150">                this.xv = 1;</span>
+<span class="fc" id="L151">                this.yv = 0;</span>
+<span class="fc" id="L152">                break;</span>
+                
+            }
+  
+            
+<span class="fc" id="L157">        }</span>
+        
+
+<span class="fc" id="L160">    }</span>
+    
+    /**
+     * Makes the ghost movement
+     * @param app
+     * @param layout
+     */
+    public void move(App app, Entity[][] layout) {
+
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (alive){</span>
+       
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            if (VerMov == true) {</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">                if (yv&lt;0){</span>
+<span class="fc" id="L173">                    this.xv =0;</span>
+<span class="fc" id="L174">                    this.yv =(int) -this.speed;</span>
+                    //up
+                    
+                }
+                else{
+<span class="fc" id="L179">                    this.xv =0;</span>
+<span class="fc" id="L180">                    this.yv =(int) this.speed;</span>
+                }
+                
+            } else {
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                if (xv &gt;0){</span>
+<span class="fc" id="L185">                    this.xv = (int)this.speed;</span>
+<span class="fc" id="L186">                    this.yv = 0;</span>
+                }
+                else{
+<span class="fc" id="L189">                    this.xv = -(int)this.speed;</span>
+<span class="fc" id="L190">                    this.yv = 0;</span>
+                }
+                
+            }
+            
+            
+            
+         }
+<span class="fc" id="L198">    }</span>
+
+    /**
+     * Determines if at an intersection
+     * @param layout
+     * @param app
+     * @return true if at an intersect
+     */
+    public boolean isIntersect(Entity[] [] layout, App app){
+<span class="fc" id="L207">        String can = &quot;can go: &quot;;</span>
+<span class="fc" id="L208">        int xPos = Math.floorDiv(x+5, 16);</span>
+<span class="fc" id="L209">        int yPos = Math.floorDiv(y+5, 16);</span>
+<span class="fc" id="L210">        int count = 0;      //left, right, up, down</span>
+<span class="fc" id="L211">        Entity[] around =  { layout[yPos][xPos-1], layout[yPos][xPos+1], layout[yPos-1][xPos], layout[yPos+1][xPos]};</span>
+<span class="fc" id="L212">        int i = 0;</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        for (Entity place: around){</span>
+<span class="pc bpc" id="L214" title="1 of 4 branches missed.">            if (place == null||place instanceof Fruit){</span>
+                //just for testing
+<span class="fc" id="L216">                count +=1;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">                if (i ==0){</span>
+<span class="fc" id="L218">                    can += &quot;left&quot;;</span>
+                }
+<span class="fc bfc" id="L220" title="All 2 branches covered.">                if (i ==1){</span>
+<span class="fc" id="L221">                    can += &quot;right&quot;;</span>
+                }
+<span class="fc bfc" id="L223" title="All 2 branches covered.">                if (i ==2){</span>
+<span class="fc" id="L224">                    can += &quot;up&quot;;</span>
+                }
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">                if (i ==3){</span>
+<span class="nc" id="L227">                    can += &quot;down&quot;;</span>
+                }
+               
+
+            }
+            else{
+                
+            }
+<span class="fc" id="L235">            i+=1;</span>
+
+        }
+<span class="fc" id="L238">        System.out.println(can);</span>
+<span class="pc bpc" id="L239" title="12 of 16 branches missed.">        if (around[0]==null &amp;&amp; around[2] ==null||around[1]==null &amp;&amp; around[3] ==null||</span>
+            around[0]==null &amp;&amp; around[3] ==null||around[1]==null &amp;&amp; around[2]==null){
+<span class="nc" id="L241">            count +=1;</span>
+        }
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">        if (hit == true){ // if hitting a wall</span>
+<span class="nc" id="L244">            count +=1;</span>
+        }
+       
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">        if (count &gt; 2){</span>
+            
+<span class="fc" id="L249">            return true;</span>
+        }
+        else{
+<span class="nc" id="L252">            return false;</span>
+        }
+        
+    }
+
+    /**
+     * Checks which directions are free for the next move
+     * @param layout
+     * @param app
+     * @returns a list of booleans corresponding to the directions
+     */
+    public ArrayList&lt;Boolean&gt; checkFreePath(Entity[][] layout, App app) {
+
+<span class="fc" id="L265">        ArrayList&lt;Boolean&gt; freePaths = new ArrayList&lt;Boolean&gt;();</span>
+
+        // UP DOWN LEFT RIGHT
+<span class="fc" id="L268">        Boolean freeLeft = true;</span>
+<span class="fc" id="L269">        Boolean freeRight = true;</span>
+<span class="fc" id="L270">        Boolean freeDown = true;</span>
+<span class="fc" id="L271">        Boolean freeUp = true;</span>
+
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        for (int i = 0; i &lt; layout.length; i++) {</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">            for (int j = 0; j &lt; layout[i].length; j++) {</span>
+
+                // need to store move as well to use at next available intersection
+
+                // need to take into account momentum
+<span class="fc bfc" id="L279" title="All 2 branches covered.">                if (layout[i][j] instanceof Obstacle) {</span>
+
+<span class="fc" id="L281">                    int ghostLeft = this.x+6;</span>
+<span class="fc" id="L282">                    int ghostRight = this.x + 6+16;</span>
+<span class="fc" id="L283">                    int ghostTop = this.y+5;</span>
+<span class="fc" id="L284">                    int ghostBottom = this.y + 5+16;</span>
+
+
+<span class="fc" id="L287">                    int wallLeft = layout[i][j].getXc();</span>
+<span class="fc" id="L288">                    int wallRight = layout[i][j].getXc() + 16;</span>
+<span class="fc" id="L289">                    int wallTop = layout[i][j].getYc();</span>
+<span class="fc" id="L290">                    int wallBottom = layout[i][j].getYc() + 16;</span>
+
+                    // Checking if the next move is available and moves in that new direction
+<span class="fc bfc" id="L293" title="All 8 branches covered.">                    if (wallLeft &lt; ghostRight - 1</span>
+                        &amp;&amp; wallRight &gt; ghostLeft - 1
+                        &amp;&amp; wallTop &lt; ghostBottom
+                        &amp;&amp; wallBottom &gt; ghostTop) {
+<span class="fc" id="L297">                            freeLeft = false;</span>
+                    }
+
+<span class="fc bfc" id="L300" title="All 8 branches covered.">                    if (wallLeft &lt; ghostRight + 1</span>
+                        &amp;&amp; wallRight &gt; ghostLeft + 1
+                        &amp;&amp; wallTop &lt; ghostBottom
+                        &amp;&amp; wallBottom &gt; ghostTop) {
+<span class="fc" id="L304">                            freeRight = false;</span>
+                    }
+
+<span class="fc bfc" id="L307" title="All 8 branches covered.">                    if (wallLeft &lt; ghostRight</span>
+                        &amp;&amp; wallRight &gt; ghostLeft
+                        &amp;&amp; wallTop &lt; ghostBottom + 1
+                        &amp;&amp; wallBottom &gt; ghostTop + 1) {
+<span class="fc" id="L311">                            freeDown = false;</span>
+                    }
+
+<span class="fc bfc" id="L314" title="All 8 branches covered.">                    if (wallLeft &lt; ghostRight</span>
+                        &amp;&amp; wallRight &gt; ghostLeft
+                        &amp;&amp; wallTop &lt; ghostBottom - 1
+                        &amp;&amp; wallBottom &gt; ghostTop - 1) {
+<span class="fc" id="L318">                            freeUp = false;</span>
+                    }
+                }
+                
+               
+                }
+            }
+<span class="fc" id="L325">            freePaths.add(freeUp);</span>
+<span class="fc" id="L326">            freePaths.add(freeDown);</span>
+<span class="fc" id="L327">            freePaths.add(freeLeft);</span>
+<span class="fc" id="L328">            freePaths.add(freeRight);</span>
+            
+
+<span class="fc" id="L331">            return freePaths;</span>
+    }
+
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

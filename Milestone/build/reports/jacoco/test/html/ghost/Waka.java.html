@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Waka.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">Waka.java</span></div><h1>Waka.java</h1><pre class="source lang-java linenums">package ghost;
+import processing.core.PImage;
+
+
+public class Waka extends Entity {
+
+    public Waka(int x, int y, PImage sprite, long speed, int lives) {
+<span class="fc" id="L8">        super(x, y, sprite);</span>
+<span class="fc" id="L9">        xv = (int) (-1 * speed);</span>
+        // this.xv = 0;
+
+<span class="fc" id="L12">        this.x = x;</span>
+<span class="fc" id="L13">        this.y = y;</span>
+<span class="fc" id="L14">        yv = 0;</span>
+<span class="fc" id="L15">        this.lives = lives;</span>
+<span class="fc" id="L16">        this.speed = (int) speed;</span>
+<span class="fc" id="L17">    }</span>
+
+<span class="fc" id="L19">    String pUp = &quot;src/main/resources/playerUp.png&quot;;</span>
+<span class="fc" id="L20">    String pDo = &quot;src/main/resources/playerDown.png&quot;;</span>
+<span class="fc" id="L21">    String pL = &quot;src/main/resources/playerLeft.png&quot;;</span>
+<span class="fc" id="L22">    String pR = &quot;src/main/resources/playerRight.png&quot;;</span>
+<span class="fc" id="L23">    String pCl = &quot;src/main/resources/playerClosed.png&quot;;</span>
+<span class="fc" id="L24">    String relevant = &quot;src/main/resources/playerClosed.png&quot;;</span>
+<span class="fc" id="L25">    Integer previouskey = 0;</span>
+    Integer xv;
+    Integer yv;
+
+    //storing the starting location
+<span class="fc" id="L30">    int ogX = x;</span>
+<span class="fc" id="L31">    int ogY = y;</span>
+
+<span class="fc" id="L33">    int score = 0;</span>
+    int speed;
+<span class="fc" id="L35">    Boolean VerMov = true;</span>
+<span class="fc" id="L36">    Boolean hit = false;</span>
+<span class="fc" id="L37">    boolean open = false;</span>
+<span class="fc" id="L38">    int i = 0;</span>
+    int lives;
+
+<span class="fc" id="L41">    PImage relevantSprite = sprite;</span>
+    PImage nextSprite;
+    PImage prevSprite;
+
+    int nextXv;
+    int nextYv;
+    int prevXv;
+    int prevYv;
+<span class="fc" id="L49">    Boolean nextIntersection = false;</span>
+    Boolean futureMove;
+    Boolean prevMove;
+
+    // game flags
+<span class="fc" id="L54">    boolean GAME_OVER_LOSE = false;</span>
+<span class="fc" id="L55">    boolean GAME_OVER_WIN = false;</span>
+<span class="fc" id="L56">    boolean GAME_NOT_OVER = true;</span>
+
+    /**
+     * Logic of movement, done every time key is pressed
+     * @param key
+     * @param app
+     * @param layout
+     * @return true if a new move has been stored
+     */
+    
+    public Boolean logic(int key, App app, Entity[][] layout) {
+        // current state info
+        //returns true if next direction is updated
+
+<span class="fc" id="L70">        prevXv = xv;</span>
+<span class="fc" id="L71">        prevYv = yv;</span>
+<span class="fc" id="L72">        prevSprite = relevantSprite;</span>
+<span class="fc" id="L73">        prevMove = VerMov;</span>
+
+        // vertical movement
+        // up
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (key == 38) {</span>
+
+<span class="nc" id="L79">            this.xv =0;</span>
+<span class="nc" id="L80">            this.yv =(int) -this.speed;</span>
+<span class="nc" id="L81">            VerMov = true;</span>
+<span class="nc" id="L82">            relevantSprite = app.loadImage(pUp);</span>
+            //relevant = pUp;
+            
+        }
+        
+        // down
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        else if (key == 40) {</span>
+<span class="fc" id="L89">            this.xv =0;</span>
+<span class="fc" id="L90">            this.yv =(int) this.speed;</span>
+<span class="fc" id="L91">            VerMov = true;</span>
+<span class="fc" id="L92">            relevantSprite = app.loadImage(pDo);</span>
+            //relevant = pDo;
+
+        }
+
+        // horizontal movement
+        // left
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        else if (key == 37) {</span>
+
+            // need to get this to speed not 1
+<span class="fc" id="L102">            this.xv = -(int)this.speed;</span>
+<span class="fc" id="L103">            this.yv = 0;</span>
+<span class="fc" id="L104">            VerMov = false;</span>
+<span class="fc" id="L105">            relevantSprite = app.loadImage(pL);</span>
+            //relevant = pL;
+
+        }
+        // right
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        else if (key == 39) {</span>
+
+<span class="fc" id="L112">            this.xv = (int)this.speed;</span>
+<span class="fc" id="L113">            this.yv = 0;</span>
+<span class="fc" id="L114">            VerMov = false;</span>
+<span class="fc" id="L115">            relevantSprite = app.loadImage(pR);</span>
+            //relevant = pR;
+
+        }
+
+        // checking if collision will occur w movement
+<span class="fc" id="L121">        nextIntersection = false;</span>
+<span class="fc" id="L122">        hit = false;</span>
+<span class="fc" id="L123">        hitsWall(layout, app);</span>
+
+        // if there is a collision, store movement as a future move
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (hit == true) {</span>
+
+            // set what the future state is gonna be
+<span class="fc" id="L129">            nextIntersection = true;</span>
+<span class="fc" id="L130">            nextXv = xv;</span>
+<span class="fc" id="L131">            nextYv = yv;</span>
+<span class="fc" id="L132">            nextSprite = relevantSprite;</span>
+<span class="fc" id="L133">            futureMove = VerMov;</span>
+
+            // keep the xv and yv as they were before we tested
+<span class="fc" id="L136">            VerMov = prevMove;</span>
+<span class="fc" id="L137">            this.xv = prevXv;</span>
+<span class="fc" id="L138">            this.yv = prevYv;</span>
+<span class="fc" id="L139">            relevantSprite = prevSprite;</span>
+<span class="fc" id="L140">            move(layout, app);</span>
+<span class="fc" id="L141">            return true;</span>
+
+        } else {
+<span class="fc" id="L144">            nextIntersection = false;</span>
+<span class="fc" id="L145">            move(layout, app);</span>
+<span class="fc" id="L146">            return false;</span>
+            
+            
+        }
+        
+
+    }
+
+    /**
+     * Actually moves waka, done every frame
+     * @param layout
+     * @param app
+     * @return true if move has been made
+     */
+    public Boolean move(Entity[][] layout, App app) {
+        // gets called every frame
+        // opening closing waka feature
+        
+        
+<span class="fc" id="L165">        i += 1;</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (i == 16) {</span>
+<span class="fc" id="L167">            i = 0;</span>
+        }
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (i &lt;= 8) {</span>
+<span class="fc" id="L170">            this.sprite = app.loadImage(pCl);</span>
+        }
+<span class="pc bpc" id="L172" title="1 of 4 branches missed.">        if (i &gt; 8 &amp;&amp; i &lt;= 16) {</span>
+<span class="fc" id="L173">            sprite = relevantSprite;</span>
+        }
+
+
+        
+
+        // checking if w next state a collision occurs, if not then apply it
+<span class="pc bpc" id="L180" title="1 of 6 branches missed.">        if ((this.x != ogX || this.y != ogY) &amp;&amp; nextIntersection) {</span>
+
+<span class="fc" id="L182">            xv = nextXv;</span>
+<span class="fc" id="L183">            yv = nextYv;</span>
+            
+<span class="fc" id="L185">            hit = false;</span>
+<span class="fc" id="L186">            hitsWall(layout, app);</span>
+
+            //if the move were to cause a collision, send through og state
+<span class="fc bfc" id="L189" title="All 2 branches covered.">            if (hit == true) {</span>
+
+<span class="fc" id="L191">                this.xv = prevXv;</span>
+<span class="fc" id="L192">                this.yv = prevYv;</span>
+<span class="fc" id="L193">                VerMov = prevMove;</span>
+<span class="fc" id="L194">                relevantSprite = prevSprite;</span>
+
+
+            //if it doesnt cause a collision, send the new state
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">            } else if (hit == false) {</span>
+                
+<span class="fc" id="L200">                VerMov = futureMove;</span>
+<span class="fc" id="L201">                relevantSprite = nextSprite;</span>
+            }
+
+        }
+        
+<span class="fc" id="L206">        hit = false;</span>
+<span class="fc" id="L207">        hitsWall(layout, app);</span>
+        
+
+        // if not hitting wall, make the move
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (hit == false) {</span>
+            //sprite = relevantSprite;
+<span class="fc bfc" id="L213" title="All 2 branches covered.">            if (VerMov == true) {</span>
+
+<span class="fc" id="L215">                this.y += yv;</span>
+            } else {
+                
+<span class="fc" id="L218">                this.x += xv;</span>
+            }
+
+            // if hitting a fruit
+<span class="fc" id="L222">            onFruit(layout, app);</span>
+            // if hitting a ghost
+<span class="fc" id="L224">            hitsGhost(layout, app);</span>
+<span class="fc" id="L225">            return true;</span>
+        }
+        else{
+<span class="fc" id="L228">            return false;</span>
+        }
+    }
+    
+    /**
+     * Collision checker function
+     * @param layout
+     * @param app
+     * @return true if a collision occurs
+     */
+    public Boolean hitsWall(Entity[][] layout, App app) {
+        // should deal with sprites as well
+
+<span class="fc" id="L241">        hit = false;</span>
+
+<span class="fc bfc" id="L243" title="All 2 branches covered.">        for (int i = 0; i &lt; layout.length; i++) {</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">            for (int j = 0; j &lt; layout[i].length; j++) {</span>
+
+                // need to store move as well to use at next available intersection
+
+                // need to take into account momentum
+<span class="fc bfc" id="L249" title="All 2 branches covered.">                if (layout[i][j] instanceof Obstacle) {</span>
+
+<span class="fc" id="L251">                    int wallLeft = layout[i][j].getXc();</span>
+<span class="fc" id="L252">                    int wallRight = layout[i][j].getXc() + 16;</span>
+<span class="fc" id="L253">                    int wallTop = layout[i][j].getYc();</span>
+<span class="fc" id="L254">                    int wallBottom = layout[i][j].getYc() + 16;</span>
+
+<span class="fc" id="L256">                    int wakaLeft = this.x+6 ;</span>
+<span class="fc" id="L257">                    int wakaRight = (this.x) + 16 + 6;</span>
+<span class="fc" id="L258">                    int wakaTop = this.y + 6;</span>
+<span class="fc" id="L259">                    int wakaBottom = (this.y) + 16 + 6;</span>
+
+<span class="fc bfc" id="L261" title="All 6 branches covered.">                    if (wallLeft &lt; wakaRight + xv &amp;&amp; wallRight &gt; wakaLeft + xv &amp;&amp; wallTop &lt; wakaBottom + yv</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                            &amp;&amp; wallBottom &gt; wakaTop + yv) {</span>
+
+                        // need to store move to use at next intersection
+
+<span class="fc bfc" id="L266" title="All 2 branches covered.">                        if (VerMov == false) {</span>
+
+                            // moving to the right
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">                            if (xv &gt; 0) {</span>
+<span class="nc" id="L270">                                hit = true;</span>
+<span class="nc" id="L271">                                break;</span>
+
+                            }
+
+                            // moving to the left
+                            else {
+<span class="fc" id="L277">                                hit = true;</span>
+<span class="fc" id="L278">                                break;</span>
+                            }
+                        }
+
+                        else {
+                            // moving up
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">                            if (yv &lt; 0) {</span>
+<span class="nc" id="L285">                                hit = true;</span>
+<span class="nc" id="L286">                                break;</span>
+                            }
+
+                            // moving down
+                            else {
+<span class="fc" id="L291">                                hit = true;</span>
+<span class="fc" id="L292">                                break;</span>
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+<span class="fc" id="L304">        return hit;</span>
+
+    }
+
+    /**
+     * Checking if we have eaten a fruit
+     * @param layout
+     * @param app
+     * @return true if on fruit
+     */
+    public Boolean onFruit(Entity[][] layout, App app) {
+<span class="fc" id="L315">        hit = false;</span>
+        // NEED TO SORT SCORING MECHANISM OUT
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        for (int i = 0; i &lt; layout.length; i++) {</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">            for (int j = 0; j &lt; layout[i].length; j++) {</span>
+
+<span class="fc bfc" id="L320" title="All 2 branches covered.">                if (layout[i][j] instanceof Fruit) {</span>
+
+<span class="fc" id="L322">                    int fruitLeft = layout[i][j].getXc();</span>
+<span class="fc" id="L323">                    int fruitRight = layout[i][j].getXc() + 16;</span>
+<span class="fc" id="L324">                    int fruitTop = layout[i][j].getYc();</span>
+<span class="fc" id="L325">                    int fruitBottom = layout[i][j].getYc() + 16;</span>
+
+<span class="fc" id="L327">                    int wakaLeft = this.x + 6;</span>
+<span class="fc" id="L328">                    int wakaRight = (this.x) + 16 + 6;</span>
+<span class="fc" id="L329">                    int wakaTop = this.y + 6;</span>
+<span class="fc" id="L330">                    int wakaBottom = (this.y) + 16 + 6;</span>
+
+<span class="fc bfc" id="L332" title="All 6 branches covered.">                    if (fruitLeft &lt; wakaRight + xv &amp;&amp; fruitRight &gt; wakaLeft + xv &amp;&amp; fruitTop &lt; wakaBottom + yv</span>
+<span class="fc bfc" id="L333" title="All 2 branches covered.">                            &amp;&amp; fruitBottom &gt; wakaTop + yv) {</span>
+
+<span class="fc" id="L335">                        layout[i][j] = null;</span>
+<span class="fc" id="L336">                        score += 1;</span>
+<span class="fc" id="L337">                        hit = true;</span>
+
+                        // if (score == layout[i][j].get){
+                        // GAME_OVER_WIN = true;
+                        // GAME_NOT_OVER = false;
+                        // }
+
+                    }
+
+                }
+            }
+        }
+<span class="fc" id="L349">        return hit;</span>
+    }
+
+    // deals with contact with ghost
+    /**
+     * Checks if waka has hit ghost
+     * @param layout
+     * @param app
+     * @return true if has hit
+     */
+
+    public Boolean hitsGhost(Entity[][] layout, App app) {
+<span class="fc" id="L361">        hit = false;</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">        for (int i = 0; i &lt; layout.length; i++) {</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">            for (int j = 0; j &lt; layout[i].length; j++) {</span>
+
+<span class="fc bfc" id="L365" title="All 2 branches covered.">                if (layout[i][j] instanceof Ghost) {</span>
+
+<span class="fc" id="L367">                    int ghostLeft = layout[i][j].getXc();</span>
+<span class="fc" id="L368">                    int ghostRight = layout[i][j].getXc() + 16;</span>
+<span class="fc" id="L369">                    int ghostTop = layout[i][j].getYc();</span>
+<span class="fc" id="L370">                    int ghostBottom = layout[i][j].getYc() + 16;</span>
+
+<span class="fc" id="L372">                    int wakaLeft = this.x + 6;</span>
+<span class="fc" id="L373">                    int wakaRight = (this.x) + 16 + 6;</span>
+<span class="fc" id="L374">                    int wakaTop = this.y + 6;</span>
+<span class="fc" id="L375">                    int wakaBottom = (this.y) + 16 + 6;</span>
+
+<span class="pc bpc" id="L377" title="1 of 6 branches missed.">                    if (ghostLeft &lt; wakaRight + xv &amp;&amp; ghostRight &gt; wakaLeft + xv &amp;&amp; ghostTop &lt; wakaBottom + yv</span>
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">                            &amp;&amp; ghostBottom &gt; wakaTop + yv) {</span>
+
+<span class="nc" id="L380">                        lives -= 1;</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">                        if (lives == 0) {</span>
+<span class="nc" id="L382">                            GAME_OVER_LOSE = true;</span>
+<span class="nc" id="L383">                            GAME_NOT_OVER = false;</span>
+                        }
+<span class="nc" id="L385">                        hit = true;</span>
+                        // move waka back to og position
+<span class="nc" id="L387">                        this.x = ogX;</span>
+<span class="nc" id="L388">                        this.y = ogY;</span>
+<span class="nc" id="L389">                        break;</span>
+
+                    }
+                }
+            }
+        }
+<span class="fc" id="L395">        return hit;</span>
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
